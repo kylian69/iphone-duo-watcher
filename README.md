@@ -280,6 +280,19 @@ Pour utiliser vos propres captures, enregistrez une page (Ctrl+S) ou une
 réponse JSON des DevTools, puis montez-la dans le conteneur
 (`-v ./capture.html:/tmp/capture.html`).
 
+### Vérification complète en une commande
+
+```bash
+./scripts/verify.sh
+```
+
+Le script lance le build, la vérification non-root, pytest dans l'image et
+toutes les simulations ci-dessus, avec un résultat OK/échec pour chacune.
+Il n'a besoin d'aucun secret ni d'accès aux sites. La procédure complète de
+mise en place et de validation sur le réel (endpoint Apple, pages des
+revendeurs, canaux) est décrite dans
+[`docs/DEPLOIEMENT_CLAUDE_CODE.md`](docs/DEPLOIEMENT_CLAUDE_CODE.md).
+
 ### Tests automatisés
 
 ```bash

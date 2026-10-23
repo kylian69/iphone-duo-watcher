@@ -6,6 +6,7 @@ services:
     image: iphone-duo-watcher:latest
     container_name: iphone-duo-watcher
     restart: unless-stopped
+    init: true            # arrêt propre (SIGTERM) et récolte des processus
     env_file: .env
     volumes:
       - ./config.yaml:/config/config.yaml:ro
@@ -25,6 +26,7 @@ services:
     image: iphone-duo-watcher:playwright
     container_name: iphone-duo-watcher-playwright
     restart: unless-stopped
+    init: true
     env_file: .env
     shm_size: "512m"
     volumes:
