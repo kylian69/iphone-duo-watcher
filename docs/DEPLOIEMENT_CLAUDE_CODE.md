@@ -75,18 +75,24 @@ continuer.
 C'est la source principale, donc la phase la plus importante. Fais **au plus
 3 ou 4 requêtes**, espacées d'au moins 60 s.
 
-1. Capture une réponse réelle :
+1. Lance le diagnostic intégré (environ 4 requêtes espacées, réponses brutes
+   enregistrées dans `/data`) :
 
    ```bash
-   curl -sS -A "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36" \
-     -H "Accept: application/json" -H "Referer: https://www.apple.com/fr/shop/buy-iphone/iphone-duo" \
-     -o /tmp/apple.json -w "HTTP %{http_code}\n" \
-     "https://www.apple.com/fr/shop/fulfillment-messages?fae=true&pl=true&mts.0=regular&mts.1=compact&parts.0=MK2E4F/A&parts.1=MK2D4F/A&searchNearby=true&location=69530"
-   python3 -m json.tool /tmp/apple.json | head -150
+   docker compose run --rm watcher probe-apple
    ```
 
-2. Compare la structure avec ce qu'attend `watcher/connectors/apple.py`
-   (docstring en tête de fichier) :
+   La commande interroge l'endpoint principal (`fulfillment-messages`) et
+   l'endpoint de secours (`retail/pickup-message`). Elle affiche :
+   - les clés de la réponse ;
+   - les magasins trouvés (Part-Dieu, Confluence…) ;
+   - l'état extrait par modèle ;
+   - pour chacune des 8 références, ✅ ou ❌ « absente de la réponse ».
+
+   Attendu : `✅ connecteur Apple opérationnel`. Pour lire une réponse brute :
+   `docker compose run --rm --entrypoint cat watcher /data/apple_probe_principal_0.json | python3 -m json.tool | head -150`.
+2. Si le format n'est pas reconnu, compare la réponse brute avec ce
+   qu'attend `watcher/connectors/apple.py` (docstring en tête de fichier) :
    - `body.content.pickupMessage.stores[]` avec `storeNumber`, `storeName`,
      `partsAvailability[<réf>].pickupDisplay` et `pickupSearchQuote` ;
    - `body.content.deliveryMessage[<réf>].regular` avec `isBuyable` et
@@ -106,7 +112,7 @@ C'est la source principale, donc la phase la plus importante. Fais **au plus
      (`tests/fixtures/apple_real_<date>.json`) ;
    - ajoute un test dans `tests/test_acceptance.py` ;
    - relance `./scripts/verify.sh`.
-5. Valide les références des 8 modèles, en particulier **`MK2F4F/A`**
+5. Valide les références des 8 modèles avec `probe-apple`, en particulier **`MK2F4F/A`**
    (512 Go Blanc stellaire), qui a été **déduite** et non confirmée.
    - Une référence correcte apparaît dans `deliveryMessage` / `partsAvailability`.
    - Si une référence est absente ou rejetée, cherche la bonne dans le source

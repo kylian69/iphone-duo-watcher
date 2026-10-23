@@ -110,7 +110,7 @@ class Service:
         cap = self.app.max_backoff_blocked_s if blocked else self.app.max_backoff_s
         delay = min(base * (2 ** (h.consecutive_failures - (0 if blocked else 1))), max(cap, base))
 
-        if h.consecutive_failures >= self.app.failure_threshold:
+        if h.consecutive_failures >= int(conn.opts.get("failure_threshold", self.app.failure_threshold)):
             h.state = "DÉGRADÉ"
             if not h.incident_open:
                 h.incident_open = True

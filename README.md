@@ -161,6 +161,28 @@ recherche web le 23/10/2026. Les valeurs marquées `À VÉRIFIER` ou
 Autre méthode : la référence figure aussi dans le code source de la page
 (Ctrl+U, puis cherchez `F/A`).
 
+### Vérifier le connecteur Apple depuis le homelab
+
+```bash
+docker compose run --rm watcher probe-apple
+```
+
+La commande vérifie que l'endpoint Apple répond au format attendu, que les
+8 références sont reconnues et que les magasins proches sont trouvés. Les
+réponses brutes sont enregistrées dans `/data`.
+
+En fonctionnement, la surveillance Apple se protège de quatre façons :
+
+- si `fulfillment-messages` change de format, le connecteur bascule sur
+  l'ancien endpoint `retail/pickup-message`, qui continue de surveiller le
+  retrait en magasin ; une alerte technique signale la bascule ;
+- une référence absente de la réponse Apple déclenche une alerte technique
+  (sinon ce modèle ne serait pas surveillé chez Apple sans que personne ne le
+  sache) ;
+- l'alerte technique Apple part dès 2 échecs consécutifs, contre 3 pour les
+  autres sites ;
+- un blocage (403/429) n'est jamais contourné.
+
 ### Récupérer l'URL produit d'un revendeur
 
 Ouvrez la fiche du **modèle exact** (capacité et coloris) et copiez l'URL dans
@@ -395,7 +417,7 @@ alertes.
 
 ```
 watcher/
-  __main__.py          CLI : run | test-notify | check-sites | simulate | status
+  __main__.py          CLI : run | test-notify | check-sites | probe-apple | simulate | status
   config.py            .env (Settings) + config.yaml (modèles, connecteurs, règles)
   state.py             SQLite : états, santé, emails traités, dernier appel
   models.py            ItemState normalisé (statut, délai, magasin, prix, forfait), Event

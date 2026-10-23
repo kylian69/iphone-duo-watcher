@@ -31,6 +31,7 @@ docs/DEPLOIEMENT_CLAUDE_CODE.md pour la procédure de mise en place et de test.
 ./scripts/verify.sh                                  # vérification hors-ligne complète
 docker compose run --rm watcher test-notify          # message sur chaque canal + appel
 docker compose run --rm watcher check-sites [sites]  # état réel extrait, sans notifier
+docker compose run --rm watcher probe-apple          # diagnostic de l'endpoint Apple (format, références)
 docker compose run --rm watcher simulate <site> <fixture> [--model id] [--send] [--db /data/x.db]
 docker compose run --rm watcher status               # tableau de bord enregistré
 docker compose up -d && docker compose logs -f

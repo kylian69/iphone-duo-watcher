@@ -16,27 +16,52 @@ Structure attendue de la réponse (champs utilisés uniquement) :
 
 Le parseur est tolérant (plusieurs variantes de champs) ; si rien n'est reconnu il lève
 FormatError → alerte technique « format non reconnu ».
+
+Secours : si l'endpoint principal ne répond plus au format attendu, l'ancien endpoint
+`/fr/shop/retail/pickup-message` (retrait uniquement, `body.stores[]`) est essayé ; une
+alerte technique signale la bascule. Une référence absente de la réponse (référence
+fausse ou retirée par Apple) déclenche aussi une alerte technique, une fois par démarrage.
+La dernière réponse brute est enregistrée dans DATA_DIR/apple_last.json (diagnostic).
 """
 
 from __future__ import annotations
 
 import json
 import re
+from pathlib import Path
 
 from ..config import ModelConfig
 from ..dates import parse_delay
-from ..models import Channel, ItemState, Status
+from ..models import Channel, Event, ItemState, Priority, Status
 from .base import Connector, FormatError, register
 
 DEFAULT_BUY_URL = "https://www.apple.com/fr/shop/buy-iphone/iphone-duo"
+PRIMARY_URL = "https://www.apple.com/fr/shop/fulfillment-messages"
+FALLBACK_URL = "https://www.apple.com/fr/shop/retail/pickup-message"
 
 
 @register("apple")
 class AppleConnector(Connector):
     label = "Apple Store"
 
+    def __init__(self, *a, **kw):
+        super().__init__(*a, **kw)
+        self._events: list[Event] = []
+        self._warned: set[str] = set()  # alertes déjà émises depuis le démarrage
+        self.last_raw: list[str] = []
+
     def tracked_models(self) -> list[ModelConfig]:
         return [m for m in self.app.models if m.apple_part]
+
+    def extra_events(self) -> list[Event]:
+        ev, self._events = self._events, []
+        return ev
+
+    def _warn_once(self, key: str, title: str, body: str) -> None:
+        self.log.warning("%s — %s", title, body.replace("\n", " | "))
+        if key not in self._warned:
+            self._warned.add(key)
+            self._events.append(Event(Priority.TECH, title, body, kind="tech"))
 
     def _buy_url(self, m: ModelConfig) -> str:
         return m.urls.get("apple") or self.opts.get("buy_url") or DEFAULT_BUY_URL
@@ -47,23 +72,61 @@ class AppleConnector(Connector):
             return []
         fixture = self.fixture()
         if fixture is not None:  # simulation : une seule réponse pour tous les modèles
-            return self._parse_raw(fixture, models)
-        items: list[ItemState] = []
-        batch = max(1, int(self.opts.get("batch_size", 4)))
-        for i in range(0, len(models), batch):
-            group = models[i : i + batch]
-            items.extend(self._parse_raw(await self._request(group), group))
+            items = self._parse_raw(fixture, models)
+        else:
+            self.last_raw = []
+            items = []
+            batch = max(1, int(self.opts.get("batch_size", 4)))
+            for i in range(0, len(models), batch):
+                items.extend(await self._check_group(models[i : i + batch]))
+            self._dump_raw()
+        self._check_missing_parts(models, items)
         return items
 
+    async def _check_group(self, group: list[ModelConfig]) -> list[ItemState]:
+        try:
+            return self._parse_raw(await self._request(group, self.opts.get("base_url", PRIMARY_URL)), group)
+        except FormatError as primary_exc:
+            fallback = self.opts.get("fallback_url", FALLBACK_URL)
+            if not fallback:
+                raise
+            try:
+                items = self._parse_raw(await self._request(group, fallback), group)
+            except FormatError:
+                raise primary_exc from None
+            self._warn_once(
+                "fallback", "Apple : endpoint de secours utilisé",
+                f"fulfillment-messages ne répond plus au format attendu ({primary_exc}).\n"
+                "Le retrait en magasin reste surveillé via pickup-message ; la livraison n'est plus suivie. "
+                "Lancez `probe-apple` pour diagnostiquer.")
+            return items
+
+    def _check_missing_parts(self, models: list[ModelConfig], items: list[ItemState]) -> None:
+        seen = {i.model_id for i in items}
+        for m in models:
+            if m.id not in seen:
+                self._warn_once(
+                    f"missing:{m.apple_part}", f"Apple : référence {m.apple_part} introuvable",
+                    f"{m.name} n'apparaît pas dans la réponse Apple : la référence est sans doute fausse "
+                    "et ce modèle n'est PAS surveillé chez Apple. Corrigez apple_part dans config.yaml "
+                    "(voir README, « Récupérer une référence Apple »).")
+
     def _parse_raw(self, raw: str, group: list[ModelConfig]) -> list[ItemState]:
+        self.last_raw.append(raw)
         try:
             data = json.loads(raw)
         except json.JSONDecodeError as exc:
             raise FormatError(f"Réponse Apple non JSON : {exc}") from exc
         return self.parse(data, group)
 
-    async def _request(self, group: list[ModelConfig]) -> str:
-        base = self.opts.get("base_url", "https://www.apple.com/fr/shop/fulfillment-messages")
+    def _dump_raw(self) -> None:
+        try:
+            path = Path(self.settings.data_dir) / "apple_last.json"
+            path.write_text("[\n" + ",\n".join(self.last_raw) + "\n]", encoding="utf-8")
+        except OSError:
+            pass
+
+    async def _request(self, group: list[ModelConfig], base: str) -> str:
         params = {"fae": "true", "pl": "true", "mts.0": "regular", "mts.1": "compact",
                   "searchNearby": "true", "location": str(self.opts.get("postal_code") or self.settings.postal_code)}
         for idx, m in enumerate(group):
@@ -95,9 +158,12 @@ class AppleConnector(Connector):
         body = data.get("body", data)
         content = body.get("content", body) if isinstance(body, dict) else {}
         pickup = content.get("pickupMessage") or {}
+        if not pickup and isinstance(content.get("stores"), list):  # ancien format pickup-message
+            pickup = content
         delivery = content.get("deliveryMessage") or {}
         if not pickup and not delivery:
-            raise FormatError("Réponse Apple sans pickupMessage ni deliveryMessage")
+            keys = ", ".join(list(content)[:8]) if isinstance(content, dict) else type(content).__name__
+            raise FormatError(f"Réponse Apple sans pickupMessage ni deliveryMessage (clés : {keys})")
 
         by_part = {m.apple_part: m for m in group}
         items: list[ItemState] = []
@@ -112,7 +178,7 @@ class AppleConnector(Connector):
                 if info is None:
                     continue
                 disp = str(info.get("pickupDisplay", "")).lower()
-                quote = (info.get("pickupSearchQuote")
+                quote = (info.get("pickupSearchQuote") or info.get("storePickupQuote")
                          or (info.get("messageTypes", {}).get("regular", {}) or {}).get("storePickupQuote")
                          or "")
                 quote = _strip_html(quote)

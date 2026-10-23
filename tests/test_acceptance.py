@@ -205,3 +205,44 @@ def test_startup_dashboard(env):
     board = run(startup())
     assert "Apple Store — OK" in board and "Emails d'alerte — DÉSACTIVÉ" in board
     assert "256 Go Ciel nocturne" in board and "Part-Dieu : indisponible" in board
+
+
+# --- Apple : robustesse ------------------------------------------------------
+
+def _tech(svc):
+    return [ev for ch, ev in svc.notifier.sent if ch == "telegram" and ev.kind == "tech"]
+
+
+def test_apple_fallback_endpoint(env):
+    legacy = (FIX / "apple_legacy_pickup_available.json").read_text(encoding="utf-8")
+    svc, apis, _ = env({"apple": {}}, routes={
+        "/fr/shop/fulfillment-messages": (200, '{"head": {"status": "200"}, "body": {"autre": {}}}'),
+        "/fr/shop/retail/pickup-message": (200, legacy),
+    })
+    run(_once(svc, "apple"))
+    run(_once(svc, "apple"))
+    assert Priority.HIGH in _sent_priorities(svc)  # retrait Part-Dieu détecté via le secours
+    assert len(_tech(svc)) == 1 and "secours" in _tech(svc)[0].title
+    assert len(apis.by("callmebot")) == 1
+
+
+def test_apple_missing_reference_alert_once(env):
+    def bad_ref(app):
+        app.model("duo-512-blanc").apple_part = "MZZZZF/A"
+
+    svc, apis, _ = env({"apple": {"fixture": str(FIX / "apple_unavailable.json")}}, models_patch=bad_ref)
+    run(_once(svc, "apple"))
+    run(_once(svc, "apple"))
+    tech = _tech(svc)
+    assert len(tech) == 1 and "MZZZZF/A" in tech[0].title
+
+
+def test_apple_blocked_alerts_after_two_failures(env):
+    svc, apis, store = env({"apple": {"failure_threshold": 2}},
+                           routes={"/fr/shop/fulfillment-messages": (429, "Too Many Requests")})
+    conn = svc.connectors[0]
+    run(svc.run_once(conn))
+    assert _tech(svc) == []
+    run(svc.run_once(conn))
+    assert len(_tech(svc)) == 1 and "bloqué" in _tech(svc)[0].title
+    assert not any(r.url.path.endswith("pickup-message") for _, r in apis.requests)  # pas de contournement

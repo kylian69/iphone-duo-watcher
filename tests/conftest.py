@@ -17,14 +17,18 @@ FIX = ROOT / "tests" / "fixtures"
 class FakeApis:
     """Simule Telegram / Discord / CallMeBot ; `fail` = noms de canaux à faire échouer."""
 
-    def __init__(self, fail=()):
+    def __init__(self, fail=(), routes=None):
         self.fail = set(fail)
+        self.routes = routes or {}  # chemin → (code HTTP, corps) pour les sites simulés
         self.requests: list[tuple[str, httpx.Request]] = []
 
     def handler(self, request: httpx.Request) -> httpx.Response:
         host = request.url.host
         name = {"api.telegram.org": "telegram", "discord.com": "discord", "api.callmebot.com": "callmebot"}.get(host, host)
         self.requests.append((name, request))
+        if request.url.path in self.routes:
+            code, text = self.routes[request.url.path]
+            return httpx.Response(code, text=text)
         if name in self.fail:
             return httpx.Response(401, json={"ok": False, "description": "Unauthorized"})
         if name == "telegram":
@@ -57,7 +61,7 @@ def make_settings(**kw) -> Settings:
 def env(tmp_path):
     """Fabrique (service, apis, store) à partir de config.yaml.example + surcharges."""
 
-    def build(connectors: dict, fail=(), settings=None, models_patch=None):
+    def build(connectors: dict, fail=(), settings=None, models_patch=None, routes=None):
         app = load_config(ROOT / "config.yaml.example")
         from watcher.config import ConnectorConfig
 
@@ -65,9 +69,9 @@ def env(tmp_path):
         if models_patch:
             models_patch(app)
         store = StateStore(tmp_path / "state.db")
-        apis = FakeApis(fail)
+        apis = FakeApis(fail, routes)
         client = httpx.AsyncClient(transport=httpx.MockTransport(apis.handler))
-        s = settings or make_settings()
+        s = settings or make_settings(data_dir=str(tmp_path))
         notifier = Notifier(s, store, client=client, group_window_s=0)
         svc = Service(s, app, store, notifier, client=client)
         return svc, apis, store

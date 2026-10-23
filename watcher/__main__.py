@@ -3,6 +3,7 @@
   python -m watcher run            lance la surveillance (défaut)
   python -m watcher test-notify    envoie un message sur chaque canal + un appel Telegram
   python -m watcher check-sites    une requête par site, affiche l'état extrait (aucune notification)
+  python -m watcher probe-apple    diagnostic de l'endpoint Apple réel (format, références, magasins)
   python -m watcher simulate ...   rejoue des données simulées (réponse Apple, page, email)
   python -m watcher status         affiche le tableau de bord enregistré
 """
@@ -92,6 +93,71 @@ async def cmd_check_sites(settings, app, store, only):
             if not items:
                 print("  aucun modèle configuré (URL produit manquantes ?)")
             print(format_items(items))
+            for ev in conn.extra_events():
+                print(f"  ⚠️ {ev.title} — {ev.body.splitlines()[0]}")
+
+
+async def cmd_probe_apple(settings, app):
+    """Une requête sur chaque endpoint Apple ; vérifie format, références et magasins."""
+    import json
+
+    import httpx
+
+    from .connectors.apple import FALLBACK_URL, PRIMARY_URL
+
+    cfg = app.connectors.get("apple") or ConnectorConfig("apple", True, (120, 180), 0, {})
+    out_dir = Path(settings.data_dir)
+    out_dir.mkdir(parents=True, exist_ok=True)
+    ok = True
+    async with httpx.AsyncClient(timeout=30) as client:
+        conn = REGISTRY["apple"](cfg, app, settings, client)
+        models = conn.tracked_models()
+        for label, url in (("principal", PRIMARY_URL), ("secours", FALLBACK_URL)):
+            print(f"\n=== Endpoint {label} : {url}")
+            seen = set()
+            for i in range(0, len(models), 4):
+                group = models[i : i + 4]
+                if i:
+                    await asyncio.sleep(5)  # requêtes espacées
+                try:
+                    raw = await conn._request(group, url)
+                except Exception as exc:
+                    print(f"  ÉCHEC requête : {type(exc).__name__}: {exc}")
+                    ok = ok and label != "principal"
+                    break
+                dump = out_dir / f"apple_probe_{label}_{i // 4}.json"
+                dump.write_text(raw, encoding="utf-8")
+                try:
+                    data = json.loads(raw)
+                except json.JSONDecodeError:
+                    print(f"  Réponse non JSON (enregistrée dans {dump})")
+                    ok = ok and label != "principal"
+                    break
+                body = data.get("body", data)
+                content = body.get("content", body) if isinstance(body, dict) else {}
+                print(f"  Réponse enregistrée : {dump}")
+                print(f"  Clés : body.{'content.' if 'content' in body else ''}"
+                      f"{{{', '.join(list(content)[:10])}}}")
+                try:
+                    items = conn.parse(data, group)
+                except Exception as exc:
+                    print(f"  ❌ format non reconnu : {exc}")
+                    ok = ok and label != "principal"
+                    break
+                stores = sorted({it.store for it in items if it.store})
+                print(f"  Magasins : {', '.join(stores) or 'aucun'}")
+                print(format_items(items))
+                seen |= {it.model_id for it in items}
+            if not seen:  # aucune réponse exploitable : impossible de juger les références
+                continue
+            for m in models:
+                flag = "✅" if m.id in seen else "❌ absente de la réponse (référence fausse ?)"
+                print(f"  {m.apple_part:<10} {m.short:<24} {flag}")
+                if label == "principal" and m.id not in seen:
+                    ok = False
+            await asyncio.sleep(5)
+    print("\nRésultat :", "✅ connecteur Apple opérationnel" if ok else "❌ à corriger (voir ci-dessus)")
+    return 0 if ok else 1
 
 
 async def cmd_simulate(settings, app, args):
@@ -136,6 +202,7 @@ def main(argv=None) -> int:
     sub.add_parser("run")
     sub.add_parser("test-notify")
     sub.add_parser("status")
+    sub.add_parser("probe-apple")
     cs = sub.add_parser("check-sites")
     cs.add_argument("connectors", nargs="*")
     sim = sub.add_parser("simulate")
@@ -155,6 +222,8 @@ def main(argv=None) -> int:
     data = Path(settings.data_dir)
     cmd = args.cmd or "run"
 
+    if cmd == "probe-apple":
+        return asyncio.run(cmd_probe_apple(settings, app))
     if cmd == "simulate":
         args.db = args.db or str(data / "simulation.db")
         return asyncio.run(cmd_simulate(settings, app, args))

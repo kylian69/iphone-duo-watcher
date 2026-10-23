@@ -158,6 +158,8 @@ connectors:
     max_distance_km: 100
     max_stores: 6
     batch_size: 4             # références par requête
+    failure_threshold: 2      # source principale : alerte technique dès 2 échecs (~5 min)
+    # fallback_url: ""        # désactive l'endpoint de secours pickup-message
 
   email:
     enabled: true             # désactivé automatiquement si IMAP_* est vide dans .env

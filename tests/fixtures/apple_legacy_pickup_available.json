@@ -1,0 +1,171 @@
+{
+ "head": {
+  "status": "200"
+ },
+ "body": {
+  "stores": [
+   {
+    "storeNumber": "R245",
+    "storeName": "Part-Dieu",
+    "city": "Lyon",
+    "storedistance": 18.2,
+    "storeDistanceWithUnit": "18.2 km",
+    "partsAvailability": {
+     "MK2E4F/A": {
+      "pickupDisplay": "available",
+      "pickupSearchQuote": "Aujourd’hui",
+      "messageTypes": {
+       "regular": {
+        "storePickupQuote": "Disponible aujourd’hui"
+       }
+      }
+     },
+     "MK2D4F/A": {
+      "pickupDisplay": "unavailable",
+      "pickupSearchQuote": "Indisponible",
+      "messageTypes": {
+       "regular": {
+        "storePickupQuote": "Indisponible aujourd’hui"
+       }
+      }
+     },
+     "MK2G4F/A": {
+      "pickupDisplay": "unavailable",
+      "pickupSearchQuote": "Indisponible",
+      "messageTypes": {
+       "regular": {
+        "storePickupQuote": "Indisponible aujourd’hui"
+       }
+      }
+     },
+     "MK2F4F/A": {
+      "pickupDisplay": "unavailable",
+      "pickupSearchQuote": "Indisponible",
+      "messageTypes": {
+       "regular": {
+        "storePickupQuote": "Indisponible aujourd’hui"
+       }
+      }
+     },
+     "MK2J4F/A": {
+      "pickupDisplay": "unavailable",
+      "pickupSearchQuote": "Indisponible",
+      "messageTypes": {
+       "regular": {
+        "storePickupQuote": "Indisponible aujourd’hui"
+       }
+      }
+     },
+     "MK2H4F/A": {
+      "pickupDisplay": "unavailable",
+      "pickupSearchQuote": "Indisponible",
+      "messageTypes": {
+       "regular": {
+        "storePickupQuote": "Indisponible aujourd’hui"
+       }
+      }
+     },
+     "MK2L4F/A": {
+      "pickupDisplay": "unavailable",
+      "pickupSearchQuote": "Indisponible",
+      "messageTypes": {
+       "regular": {
+        "storePickupQuote": "Indisponible aujourd’hui"
+       }
+      }
+     },
+     "MK2K4F/A": {
+      "pickupDisplay": "unavailable",
+      "pickupSearchQuote": "Indisponible",
+      "messageTypes": {
+       "regular": {
+        "storePickupQuote": "Indisponible aujourd’hui"
+       }
+      }
+     }
+    }
+   },
+   {
+    "storeNumber": "R366",
+    "storeName": "Confluence",
+    "city": "Lyon",
+    "storedistance": 21.7,
+    "storeDistanceWithUnit": "21.7 km",
+    "partsAvailability": {
+     "MK2E4F/A": {
+      "pickupDisplay": "unavailable",
+      "pickupSearchQuote": "Indisponible",
+      "messageTypes": {
+       "regular": {
+        "storePickupQuote": "Indisponible aujourd’hui"
+       }
+      }
+     },
+     "MK2D4F/A": {
+      "pickupDisplay": "unavailable",
+      "pickupSearchQuote": "Indisponible",
+      "messageTypes": {
+       "regular": {
+        "storePickupQuote": "Indisponible aujourd’hui"
+       }
+      }
+     },
+     "MK2G4F/A": {
+      "pickupDisplay": "unavailable",
+      "pickupSearchQuote": "Indisponible",
+      "messageTypes": {
+       "regular": {
+        "storePickupQuote": "Indisponible aujourd’hui"
+       }
+      }
+     },
+     "MK2F4F/A": {
+      "pickupDisplay": "unavailable",
+      "pickupSearchQuote": "Indisponible",
+      "messageTypes": {
+       "regular": {
+        "storePickupQuote": "Indisponible aujourd’hui"
+       }
+      }
+     },
+     "MK2J4F/A": {
+      "pickupDisplay": "unavailable",
+      "pickupSearchQuote": "Indisponible",
+      "messageTypes": {
+       "regular": {
+        "storePickupQuote": "Indisponible aujourd’hui"
+       }
+      }
+     },
+     "MK2H4F/A": {
+      "pickupDisplay": "unavailable",
+      "pickupSearchQuote": "Indisponible",
+      "messageTypes": {
+       "regular": {
+        "storePickupQuote": "Indisponible aujourd’hui"
+       }
+      }
+     },
+     "MK2L4F/A": {
+      "pickupDisplay": "unavailable",
+      "pickupSearchQuote": "Indisponible",
+      "messageTypes": {
+       "regular": {
+        "storePickupQuote": "Indisponible aujourd’hui"
+       }
+      }
+     },
+     "MK2K4F/A": {
+      "pickupDisplay": "unavailable",
+      "pickupSearchQuote": "Indisponible",
+      "messageTypes": {
+       "regular": {
+        "storePickupQuote": "Indisponible aujourd’hui"
+       }
+      }
+     }
+    }
+   }
+  ]
+ }
+}
