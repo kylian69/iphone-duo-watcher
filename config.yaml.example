@@ -1,0 +1,234 @@
+# =============================================================================
+#  Surveillance iPhone Duo — configuration fonctionnelle
+#  Copier en config.yaml. Les secrets vont dans .env, jamais ici.
+#  Les valeurs marquées « À VÉRIFIER » n'ont pas pu être confirmées sur le site
+#  lui-même : contrôlez-les (voir README) puis lancez `check-sites`.
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Modèles suivis
+#   id          identifiant interne (libre, unique)
+#   apple_part  référence Apple France (format MXXXXF/A pour l'iPhone Duo)
+#   priority    high = prioritaire | low = secondaire
+#   allow_call  autorise l'appel Telegram (défaut : true si high, false si low)
+#               false → la disponibilité donne seulement un message
+#   email_match expressions régulières pour reconnaître le modèle dans un email
+#   urls        page produit par site (clé = nom du connecteur). Laisser vide
+#               ou supprimer la ligne si le site ne doit pas être surveillé.
+# -----------------------------------------------------------------------------
+models:
+  - id: duo-256-ciel
+    name: iPhone Duo 256 Go Ciel nocturne
+    short: 256 Go Ciel nocturne
+    apple_part: MK2E4F/A
+    priority: high
+    email_match: { capacity: '256\s?(go|gb)', color: 'ciel|nocturne|night|noir|bleu|midnight' }
+    urls:
+      apple: https://www.apple.com/fr/shop/buy-iphone/iphone-duo/%C3%A9cran-de-7,6-pouces-256go-ciel-nocturne
+      boulanger: https://www.boulanger.com/ref/1245563
+      darty: https://www.darty.com/nav/achat/telephonie/telephone_mobile_seul/iphone/apple_iphduo_256_noir.html
+      # Page générique iPhone Duo (tous coloris) — remplacer par l'URL de la variante si elle existe
+      bouygues: https://www.bouyguestelecom.fr/telephones-mobiles/apple-iphone-duo
+      sfr: https://www.red-by-sfr.fr/telephones/apple-iphone-duo/256Go/BLEU/
+      orange:      # À RENSEIGNER (page produit introuvable par recherche)
+      fnac:        # À RENSEIGNER
+      cdiscount:   # À RENSEIGNER
+      amazon:      # À RENSEIGNER (optionnel, Keepa recommandé)
+
+  - id: duo-256-blanc
+    name: iPhone Duo 256 Go Blanc stellaire
+    short: 256 Go Blanc stellaire
+    apple_part: MK2D4F/A
+    priority: high
+    email_match: { capacity: '256\s?(go|gb)', color: 'blanc|stellaire|white|star' }
+    urls:
+      apple: https://www.apple.com/fr/shop/buy-iphone/iphone-duo/%C3%A9cran-de-7,6-pouces-256go-blanc-stellaire
+      boulanger: https://www.boulanger.com/ref/1243118   # À VÉRIFIER (numérotation différente des autres)
+      darty: https://www.darty.com/nav/achat/telephonie/telephone_mobile_seul/iphone/apple_iphduo_256_blanc.html
+      bouygues: https://www.bouyguestelecom.fr/telephones-mobiles/apple-iphone-duo
+      sfr: https://www.red-by-sfr.fr/telephones/apple-iphone-duo/256Go/BLANC/   # À VÉRIFIER (déduite)
+      orange:
+      fnac:
+      cdiscount:
+      amazon:
+
+  - id: duo-512-ciel
+    name: iPhone Duo 512 Go Ciel nocturne
+    short: 512 Go Ciel nocturne
+    apple_part: MK2G4F/A
+    priority: low
+    allow_call: true          # secondaire, mais appel autorisé
+    email_match: { capacity: '512\s?(go|gb)', color: 'ciel|nocturne|night|noir|bleu|midnight' }
+    urls:
+      apple: https://www.apple.com/fr/shop/buy-iphone/iphone-duo/%C3%A9cran-de-7,6-pouces-512go-ciel-nocturne
+      boulanger: https://www.boulanger.com/ref/1245565
+      sfr: https://www.red-by-sfr.fr/telephones/apple-iphone-duo/512Go/BLEU/
+
+  - id: duo-512-blanc
+    name: iPhone Duo 512 Go Blanc stellaire
+    short: 512 Go Blanc stellaire
+    apple_part: MK2F4F/A      # À VÉRIFIER (déduite de la série MK2D4…MK2L4, non confirmée)
+    priority: low
+    allow_call: true
+    email_match: { capacity: '512\s?(go|gb)', color: 'blanc|stellaire|white|star' }
+    urls:
+      apple: https://www.apple.com/fr/shop/buy-iphone/iphone-duo/%C3%A9cran-de-7,6-pouces-512go-blanc-stellaire
+      boulanger: https://www.boulanger.com/ref/1245564
+      sfr: https://www.red-by-sfr.fr/telephones/apple-iphone-duo/512Go/BLANC/
+
+  - id: duo-1to-ciel
+    name: iPhone Duo 1 To Ciel nocturne
+    short: 1 To Ciel nocturne
+    apple_part: MK2J4F/A
+    priority: low
+    allow_call: false
+    email_match: { capacity: '1\s?(to|tb)', color: 'ciel|nocturne|night|noir|bleu|midnight' }
+    urls:
+      apple: https://www.apple.com/fr/shop/buy-iphone/iphone-duo/%C3%A9cran-de-7,6-pouces-1to-ciel-nocturne
+      boulanger: https://www.boulanger.com/ref/1245567
+      sfr: https://www.red-by-sfr.fr/telephones/apple-iphone-duo/1000Go/BLEU/
+
+  - id: duo-1to-blanc
+    name: iPhone Duo 1 To Blanc stellaire
+    short: 1 To Blanc stellaire
+    apple_part: MK2H4F/A
+    priority: low
+    allow_call: false
+    email_match: { capacity: '1\s?(to|tb)', color: 'blanc|stellaire|white|star' }
+    urls:
+      apple: https://www.apple.com/fr/shop/buy-iphone/iphone-duo/%C3%A9cran-de-7,6-pouces-1to-blanc-stellaire
+      boulanger: https://www.boulanger.com/ref/1245566
+      sfr: https://www.red-by-sfr.fr/telephones/apple-iphone-duo/1000Go/BLANC/
+
+  - id: duo-2to-ciel
+    name: iPhone Duo 2 To Ciel nocturne
+    short: 2 To Ciel nocturne
+    apple_part: MK2L4F/A
+    priority: low
+    allow_call: false         # le 2 To ne déclenche jamais d'appel
+    email_match: { capacity: '2\s?(to|tb)', color: 'ciel|nocturne|night|noir|bleu|midnight' }
+    urls:
+      apple: https://www.apple.com/fr/shop/buy-iphone/iphone-duo/%C3%A9cran-de-7,6-pouces-2to-ciel-nocturne
+      boulanger:   # À RENSEIGNER
+      sfr: https://www.red-by-sfr.fr/telephones/apple-iphone-duo/2000Go/BLEU/   # À VÉRIFIER (déduite)
+
+  - id: duo-2to-blanc
+    name: iPhone Duo 2 To Blanc stellaire
+    short: 2 To Blanc stellaire
+    apple_part: MK2K4F/A
+    priority: low
+    allow_call: false
+    email_match: { capacity: '2\s?(to|tb)', color: 'blanc|stellaire|white|star' }
+    urls:
+      apple: https://www.apple.com/fr/shop/buy-iphone/iphone-duo/%C3%A9cran-de-7,6-pouces-2to-blanc-stellaire
+      boulanger: https://www.boulanger.com/ref/1245568
+      sfr: https://www.red-by-sfr.fr/telephones/apple-iphone-duo/2000Go/BLANC/
+
+# -----------------------------------------------------------------------------
+# Règles d'alerte
+# -----------------------------------------------------------------------------
+alerts:
+  # Délai maximal (jours) de livraison/retrait pour qu'une disponibilité soit
+  # « urgente » (appel). `default` s'applique à tous les sites non listés.
+  urgent_max_days:
+    default: 7
+    apple: 30
+  # Disponible mais sans délai lisible → urgent quand même (prudence)
+  urgent_if_delay_unknown: true
+  # Nombre d'échecs consécutifs avant l'alerte technique (une seule par incident)
+  failure_threshold: 3
+  # Attente progressive maximale après erreur / après blocage (403, 429, CAPTCHA)
+  max_backoff_minutes: 30
+  max_backoff_blocked_hours: 6
+
+# -----------------------------------------------------------------------------
+# Connecteurs
+#   enabled   active/désactive le site
+#   interval  [min, max] secondes entre deux vérifications (tirage aléatoire)
+#   jitter    délai aléatoire supplémentaire (0..jitter secondes)
+#   fixture   (simulation) fichier lu à la place du site — voir README
+# -----------------------------------------------------------------------------
+connectors:
+  apple:
+    enabled: true
+    interval: [120, 180]      # jamais sous 60 s (plancher imposé par le code)
+    jitter: 30
+    # postal_code: "69530"    # défaut : POSTAL_CODE du .env
+    stores: []                # filtre facultatif, ex. ["Part-Dieu", "Confluence"] ou numéros « R… »
+    max_distance_km: 100
+    max_stores: 6
+    batch_size: 4             # références par requête
+
+  email:
+    enabled: true             # désactivé automatiquement si IMAP_* est vide dans .env
+    interval: [60, 120]
+    jitter: 10
+    rules:                    # 1re règle correspondante = site de l'alerte
+      - site: Fnac
+        from: ["fnac.com"]
+        keywords: ['disponible', 'de retour', 'en stock', 'r[ée]approvisionn']
+        require_product: 'iphone\s*duo'
+        link_domains: ["fnac.com"]
+      - site: Darty
+        from: ["darty.com"]
+        keywords: ['disponible', 'de retour', 'en stock', 'r[ée]approvisionn']
+        require_product: 'iphone\s*duo'
+        link_domains: ["darty.com"]
+      - site: Cdiscount
+        from: ["cdiscount.com"]
+        keywords: ['disponible', 'de retour', 'en stock', 'r[ée]approvisionn']
+        require_product: 'iphone\s*duo'
+        link_domains: ["cdiscount.com"]
+      - site: Boulanger
+        from: ["boulanger.com"]
+        keywords: ['disponible', 'de retour', 'en stock']
+        require_product: 'iphone\s*duo'
+        link_domains: ["boulanger.com"]
+      - site: Amazon (Keepa)
+        from: ["keepa.com"]
+        keywords: ['in stock', 'available', 'disponible', 'price', 'prix']
+        require_product: 'iphone\s*duo'
+        link_domains: ["amazon.fr", "keepa.com"]
+
+  orange:
+    enabled: true
+    interval: [600, 900]
+    jitter: 120
+  bouygues:
+    enabled: true
+    interval: [600, 900]
+    jitter: 120
+  sfr:
+    enabled: true
+    interval: [600, 900]
+    jitter: 120
+  boulanger:
+    enabled: true
+    interval: [600, 900]
+    jitter: 120
+
+  # Protection anti-bot probable : désactivés par défaut. Lancez
+  # `docker compose run --rm watcher check-sites fnac darty cdiscount amazon`
+  # depuis le homelab ; n'activez que ceux qui répondent sans blocage.
+  fnac:
+    enabled: false
+    interval: [900, 1200]
+    jitter: 180
+  darty:
+    enabled: false
+    interval: [900, 1200]
+    jitter: 180
+  cdiscount:
+    enabled: false
+    interval: [900, 1200]
+    jitter: 180
+  amazon:
+    enabled: false
+    interval: [1200, 1800]
+    jitter: 300
+
+  # Exemple : site imposant JavaScript (image Docker « playwright » requise)
+  # boulanger:
+  #   fetcher: playwright
+  #   wait_selector: "[data-testid=availability]"
+  #   interval: [1200, 1800]

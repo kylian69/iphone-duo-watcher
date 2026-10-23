@@ -1,0 +1,35 @@
+services:
+  watcher:
+    build:
+      context: .
+      target: default
+    image: iphone-duo-watcher:latest
+    container_name: iphone-duo-watcher
+    restart: unless-stopped
+    env_file: .env
+    volumes:
+      - ./config.yaml:/config/config.yaml:ro
+      - watcher-data:/data
+    logging:
+      driver: json-file
+      options: { max-size: "10m", max-file: "3" }
+
+  # Variante avec navigateur headless, uniquement si un site l'impose :
+  #   docker compose --profile playwright up -d watcher-playwright
+  # (et arrêter le service « watcher » pour ne pas surveiller deux fois)
+  watcher-playwright:
+    profiles: ["playwright"]
+    build:
+      context: .
+      target: playwright
+    image: iphone-duo-watcher:playwright
+    container_name: iphone-duo-watcher-playwright
+    restart: unless-stopped
+    env_file: .env
+    shm_size: "512m"
+    volumes:
+      - ./config.yaml:/config/config.yaml:ro
+      - watcher-data:/data
+
+volumes:
+  watcher-data:   # état persistant (SQLite), conservé entre redémarrages et mises à jour

@@ -1,0 +1,155 @@
+{
+ "head": {
+  "status": "200",
+  "data": {}
+ },
+ "body": {
+  "content": {
+   "pickupMessage": {
+    "stores": [
+     {
+      "storeNumber": "R245",
+      "storeName": "Part-Dieu",
+      "city": "Lyon",
+      "storedistance": 18.2,
+      "storeDistanceWithUnit": "18.2 km",
+      "partsAvailability": {
+       "MK2E4F/A": {
+        "pickupDisplay": "unavailable",
+        "pickupSearchQuote": "Indisponible",
+        "messageTypes": {
+         "regular": {
+          "storePickupQuote": "Indisponible aujourd’hui"
+         }
+        }
+       },
+       "MK2D4F/A": {
+        "pickupDisplay": "unavailable",
+        "pickupSearchQuote": "Indisponible",
+        "messageTypes": {
+         "regular": {
+          "storePickupQuote": "Indisponible aujourd’hui"
+         }
+        }
+       },
+       "MK2G4F/A": {
+        "pickupDisplay": "unavailable",
+        "pickupSearchQuote": "Indisponible",
+        "messageTypes": {
+         "regular": {
+          "storePickupQuote": "Indisponible aujourd’hui"
+         }
+        }
+       },
+       "MK2F4F/A": {
+        "pickupDisplay": "unavailable",
+        "pickupSearchQuote": "Indisponible",
+        "messageTypes": {
+         "regular": {
+          "storePickupQuote": "Indisponible aujourd’hui"
+         }
+        }
+       }
+      }
+     },
+     {
+      "storeNumber": "R366",
+      "storeName": "Confluence",
+      "city": "Lyon",
+      "storedistance": 21.7,
+      "storeDistanceWithUnit": "21.7 km",
+      "partsAvailability": {
+       "MK2E4F/A": {
+        "pickupDisplay": "unavailable",
+        "pickupSearchQuote": "Indisponible",
+        "messageTypes": {
+         "regular": {
+          "storePickupQuote": "Indisponible aujourd’hui"
+         }
+        }
+       },
+       "MK2D4F/A": {
+        "pickupDisplay": "unavailable",
+        "pickupSearchQuote": "Indisponible",
+        "messageTypes": {
+         "regular": {
+          "storePickupQuote": "Indisponible aujourd’hui"
+         }
+        }
+       },
+       "MK2G4F/A": {
+        "pickupDisplay": "unavailable",
+        "pickupSearchQuote": "Indisponible",
+        "messageTypes": {
+         "regular": {
+          "storePickupQuote": "Indisponible aujourd’hui"
+         }
+        }
+       },
+       "MK2F4F/A": {
+        "pickupDisplay": "unavailable",
+        "pickupSearchQuote": "Indisponible",
+        "messageTypes": {
+         "regular": {
+          "storePickupQuote": "Indisponible aujourd’hui"
+         }
+        }
+       }
+      }
+     }
+    ],
+    "location": "69530"
+   },
+   "deliveryMessage": {
+    "MK2E4F/A": {
+     "regular": {
+      "isBuyable": true,
+      "deliveryOptions": [
+       {
+        "displayName": "Livraison",
+        "date": "Livraison : 25/01/2027 – 01/02/2027",
+        "shippingCost": "Gratuite"
+       }
+      ]
+     }
+    },
+    "MK2D4F/A": {
+     "regular": {
+      "isBuyable": true,
+      "deliveryOptions": [
+       {
+        "displayName": "Livraison",
+        "date": "Livraison : 25/01/2027 – 01/02/2027",
+        "shippingCost": "Gratuite"
+       }
+      ]
+     }
+    },
+    "MK2G4F/A": {
+     "regular": {
+      "isBuyable": true,
+      "deliveryOptions": [
+       {
+        "displayName": "Livraison",
+        "date": "Livraison : 25/01/2027 – 01/02/2027",
+        "shippingCost": "Gratuite"
+       }
+      ]
+     }
+    },
+    "MK2F4F/A": {
+     "regular": {
+      "isBuyable": true,
+      "deliveryOptions": [
+       {
+        "displayName": "Livraison",
+        "date": "Livraison : 25/01/2027 – 01/02/2027",
+        "shippingCost": "Gratuite"
+       }
+      ]
+     }
+    }
+   }
+  }
+ }
+}
